@@ -94,6 +94,28 @@ private enum Button: Int {
             valueLabel.textColor = labelTextColor
         }
     }
+    
+    @IBInspectable public var showSeperators: Bool = true {
+        didSet {
+            if showSeperators {
+                leftSeparator.strokeColor = tintColor.cgColor
+                rightSeparator.strokeColor = tintColor.cgColor
+            } else {
+                leftSeparator.strokeColor = UIColor.clear.cgColor
+                rightSeparator.strokeColor = UIColor.clear.cgColor
+            }
+        }
+    }
+    
+    @IBInspectable public var thickness: CGFloat = CGFloat(2.0)
+    
+    @IBInspectable public var iconSize: CGFloat = CGFloat(15.0)
+    
+    // Default width of the stepper. Taken from the official UIStepper object.
+    @IBInspectable public var defaultWidth: CGFloat = CGFloat(141.0)
+    
+    // Default height of the stepper. Taken from the official UIStepper object.
+    @IBInspectable public var defaultHeight: CGFloat = CGFloat(29.0)
 
     /// Describes the format of the value.
     public var numberFormatter: NumberFormatter = {
@@ -106,12 +128,6 @@ private enum Button: Int {
             setFormattedValue(value)
         }
     }
-
-    // Default width of the stepper. Taken from the official UIStepper object.
-    public let defaultWidth = 141.0
-
-    // Default height of the stepper. Taken from the official UIStepper object.
-    public let defaultHeight = 29.0
 
     /// Value label that displays the current value displayed at the center of the stepper.
     public let valueLabel: UILabel = {
@@ -165,7 +181,7 @@ private enum Button: Int {
 
     override init(frame: CGRect) {
         // Override frame with default width and height
-        let frameWithDefaultSize = CGRect(x: Double(frame.origin.x), y: Double(frame.origin.y), width: defaultWidth, height: defaultHeight)
+        let frameWithDefaultSize = CGRect(x: frame.origin.x, y: frame.origin.y, width: defaultWidth, height: defaultHeight)
         super.init(frame: frameWithDefaultSize)
         setUp()
     }
@@ -226,8 +242,6 @@ private enum Button: Int {
         // Size constants
         let sliceWidth = bounds.width / 3
         let sliceHeight = bounds.height
-        let thickness = 1.0 as CGFloat
-        let iconSize: CGFloat = sliceHeight * 0.6
 
         valueLabel.backgroundColor = backgroundLabelColor
         valueLabel.textColor = labelTextColor
@@ -239,28 +253,28 @@ private enum Button: Int {
         backgroundColor = .clear
         clipsToBounds = true
 
+        let strokeColor = showSeperators ? tintColor! : UIColor.clear
+
         let leftPath = UIBezierPath()
         // Left separator line
         leftPath.move(to: CGPoint(x: sliceWidth, y: 0.0))
         leftPath.addLine(to: CGPoint(x: sliceWidth, y: sliceHeight))
-        tintColor.setStroke()
         leftPath.stroke()
 
         // Set left separator layer
         leftSeparator.path = leftPath.cgPath
-        leftSeparator.strokeColor = tintColor.cgColor
+        leftSeparator.strokeColor = strokeColor.cgColor
         layer.addSublayer(leftSeparator)
 
         // Right separator line
         let rightPath = UIBezierPath()
         rightPath.move(to: CGPoint(x: sliceWidth * 2, y: 0.0))
         rightPath.addLine(to: CGPoint(x: sliceWidth * 2, y: sliceHeight))
-        tintColor.setStroke()
         rightPath.stroke()
 
         // Set right separator layer
         rightSeparator.path = rightPath.cgPath
-        rightSeparator.strokeColor = tintColor.cgColor
+        rightSeparator.strokeColor = strokeColor.cgColor
         layer.addSublayer(rightSeparator)
 
         // - path
@@ -408,10 +422,12 @@ private enum Button: Int {
         layer.borderColor = tintColor.cgColor
         iconButtonColor = tintColor
         valueLabel.textColor = labelTextColor
-        leftSeparator.strokeColor = tintColor.cgColor
-        rightSeparator.strokeColor = tintColor.cgColor
         increaseLayer.strokeColor = tintColor.cgColor
         decreaseLayer.strokeColor = tintColor.cgColor
+        
+        guard showSeperators else { return }
+        leftSeparator.strokeColor = tintColor.cgColor
+        rightSeparator.strokeColor = tintColor.cgColor
     }
 
     // MARK: Helpers
