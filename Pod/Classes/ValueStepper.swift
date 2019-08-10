@@ -89,23 +89,28 @@ private enum Button: Int {
     }
 
     /// The text color of the value label in positioned in the center.
-    @IBInspectable public var labelTextColor: UIColor = .white {
+    @IBInspectable public var labelTextColor: UIColor? {
         didSet {
-            valueLabel.textColor = labelTextColor
+            valueLabel.textColor = labelTextColor ?? tintColor
         }
     }
     
     @IBInspectable public var showSeperators: Bool = true {
         didSet {
             if showSeperators {
-                leftSeparator.strokeColor = tintColor.cgColor
-                rightSeparator.strokeColor = tintColor.cgColor
+                leftSeparator = CAShapeLayer()
+                rightSeparator = CAShapeLayer()
             } else {
-                leftSeparator.strokeColor = UIColor.clear.cgColor
-                rightSeparator.strokeColor = UIColor.clear.cgColor
+                leftSeparator?.removeFromSuperlayer()
+                leftSeparator = nil
+                rightSeparator?.removeFromSuperlayer()
+                rightSeparator = nil
             }
+            
+            setNeedsDisplay()
         }
     }
+
     
     @IBInspectable public var thickness: CGFloat = CGFloat(2.0)
     
@@ -163,10 +168,10 @@ private enum Button: Int {
     private var increaseLayer = CAShapeLayer()
 
     // Left separator.
-    private var leftSeparator = CAShapeLayer()
+    private var leftSeparator: CAShapeLayer?
 
     // Right separator.
-    private var rightSeparator = CAShapeLayer()
+    private var rightSeparator: CAShapeLayer?
 
     // Timer used in case that autorepeat is true to change the value continuously.
     private var continuousTimer: Timer? {
@@ -244,7 +249,7 @@ private enum Button: Int {
         let sliceHeight = bounds.height
 
         valueLabel.backgroundColor = backgroundLabelColor
-        valueLabel.textColor = labelTextColor
+        valueLabel.textColor = labelTextColor ?? tintColor
 
         // Layer customizations
         layer.borderColor = tintColor.cgColor
@@ -253,29 +258,38 @@ private enum Button: Int {
         backgroundColor = .clear
         clipsToBounds = true
 
-        let strokeColor = showSeperators ? tintColor! : UIColor.clear
-
         let leftPath = UIBezierPath()
         // Left separator line
         leftPath.move(to: CGPoint(x: sliceWidth, y: 0.0))
         leftPath.addLine(to: CGPoint(x: sliceWidth, y: sliceHeight))
         leftPath.stroke()
 
-        // Set left separator layer
-        leftSeparator.path = leftPath.cgPath
-        leftSeparator.strokeColor = strokeColor.cgColor
-        layer.addSublayer(leftSeparator)
-
-        // Right separator line
-        let rightPath = UIBezierPath()
-        rightPath.move(to: CGPoint(x: sliceWidth * 2, y: 0.0))
-        rightPath.addLine(to: CGPoint(x: sliceWidth * 2, y: sliceHeight))
-        rightPath.stroke()
-
-        // Set right separator layer
-        rightSeparator.path = rightPath.cgPath
-        rightSeparator.strokeColor = strokeColor.cgColor
-        layer.addSublayer(rightSeparator)
+        if let seperator = leftSeparator {
+            // Left separator line
+            let leftPath = UIBezierPath()
+            // Left separator line
+            leftPath.move(to: CGPoint(x: sliceWidth, y: 0.0))
+            leftPath.addLine(to: CGPoint(x: sliceWidth, y: sliceHeight))
+            leftPath.stroke()
+            
+            // Set left separator layer
+            seperator.path = leftPath.cgPath
+            seperator.strokeColor = tintColor!.cgColor
+            layer.addSublayer(seperator)
+        }
+        
+        if let seperator = rightSeparator {
+            // Right separator line
+            let rightPath = UIBezierPath()
+            rightPath.move(to: CGPoint(x: sliceWidth * 2, y: 0.0))
+            rightPath.addLine(to: CGPoint(x: sliceWidth * 2, y: sliceHeight))
+            rightPath.stroke()
+            
+            // Set right separator layer
+            seperator.path = rightPath.cgPath
+            seperator.strokeColor = tintColor!.cgColor
+            layer.addSublayer(seperator)
+        }
 
         // - path
         let decreasePath = UIBezierPath()
@@ -421,13 +435,11 @@ private enum Button: Int {
     open override func tintColorDidChange() {
         layer.borderColor = tintColor.cgColor
         iconButtonColor = tintColor
-        valueLabel.textColor = labelTextColor
+        valueLabel.textColor = labelTextColor ?? tintColor
         increaseLayer.strokeColor = tintColor.cgColor
         decreaseLayer.strokeColor = tintColor.cgColor
-        
-        guard showSeperators else { return }
-        leftSeparator.strokeColor = tintColor.cgColor
-        rightSeparator.strokeColor = tintColor.cgColor
+        leftSeparator?.strokeColor = tintColor.cgColor
+        rightSeparator?.strokeColor = tintColor.cgColor
     }
 
     // MARK: Helpers
