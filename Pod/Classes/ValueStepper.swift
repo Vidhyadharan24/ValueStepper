@@ -258,16 +258,9 @@ private enum Button: Int {
         backgroundColor = .clear
         clipsToBounds = true
 
-        let leftPath = UIBezierPath()
-        // Left separator line
-        leftPath.move(to: CGPoint(x: sliceWidth, y: 0.0))
-        leftPath.addLine(to: CGPoint(x: sliceWidth, y: sliceHeight))
-        leftPath.stroke()
-
         if let seperator = leftSeparator {
             // Left separator line
             let leftPath = UIBezierPath()
-            // Left separator line
             leftPath.move(to: CGPoint(x: sliceWidth, y: 0.0))
             leftPath.addLine(to: CGPoint(x: sliceWidth, y: sliceHeight))
             leftPath.stroke()
